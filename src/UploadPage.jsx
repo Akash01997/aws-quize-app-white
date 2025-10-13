@@ -1,11 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Papa from 'papaparse';
+import VideoRecorder from './VideoRecorder';
+import VideoExporter from './VideoExporter';
 
 export default function UploadPage() {
   const [uploadError, setUploadError] = useState('');
   const [fileName, setFileName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showVideoRecorder, setShowVideoRecorder] = useState(false);
+  const [quizData, setQuizData] = useState(null);
   const fileInputRef = useRef();
   const navigate = useNavigate();
 
@@ -30,19 +35,19 @@ export default function UploadPage() {
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/json') {
+    if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
       fileInputRef.current.files = e.dataTransfer.files;
       setFileName(file.name);
       setUploadError('');
     } else {
-      setUploadError('Please drop a valid JSON file.');
+      setUploadError('Please drop a valid CSV file.');
     }
   };
 
   const handleSimulate = () => {
     const file = fileInputRef.current.files[0];
     if (!file) {
-      setUploadError('Please select a JSON file.');
+      setUploadError('Please select a CSV file.');
       return;
     }
     
@@ -52,18 +57,92 @@ export default function UploadPage() {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const data = JSON.parse(event.target.result);
-        if (!Array.isArray(data) || !data[0]?.question || !data[0]?.options) {
-          setUploadError('Invalid quiz JSON format.');
-          setIsLoading(false);
-          return;
-        }
-        // Add a small delay for better UX
-        setTimeout(() => {
-          navigate('/quiz', { state: { quizData: data } });
-        }, 500);
+        Papa.parse(event.target.result, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            try {
+              const { data, errors } = results;
+              
+              if (errors.length > 0) {
+                setUploadError('Error parsing CSV file: ' + errors[0].message);
+                setIsLoading(false);
+                return;
+              }
+              
+              if (!data || data.length === 0) {
+                setUploadError('CSV file is empty or invalid.');
+                setIsLoading(false);
+                return;
+              }
+              
+              // Validate required columns
+              const requiredColumns = ['question_text', 'option_1', 'option_2', 'option_3', 'option_4', 'correct_answer'];
+              const firstRow = data[0];
+              const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+              
+              if (missingColumns.length > 0) {
+                setUploadError(`Missing required columns: ${missingColumns.join(', ')}`);
+                setIsLoading(false);
+                return;
+              }
+              
+              // Transform CSV data to quiz format
+              const quizData = data.map((row, index) => {
+                const options = [
+                  row.option_1?.trim(),
+                  row.option_2?.trim(),
+                  row.option_3?.trim(),
+                  row.option_4?.trim()
+                ].filter(option => option && option.length > 0);
+                
+                if (options.length < 2) {
+                  throw new Error(`Row ${index + 1}: At least 2 options are required`);
+                }
+                
+                // Handle correct_answer as option number (1, 2, 3, 4)
+                const correctAnswerIndex = parseInt(row.correct_answer?.trim()) - 1; // Convert to 0-based index
+                let correctAnswer = null;
+                
+                if (correctAnswerIndex >= 0 && correctAnswerIndex < options.length) {
+                  correctAnswer = options[correctAnswerIndex];
+                } else {
+                  // Fallback: try to match the correct_answer text directly
+                  correctAnswer = row.correct_answer?.trim();
+                }
+                
+                return {
+                  question: row.question_text?.trim() || `Question ${index + 1}`,
+                  options: options,
+                  answer: correctAnswer,
+                  explanation: row.explanation?.trim() || null,
+                  topic_id: row.topic_id || null,
+                  question_id: row.question_id || index + 1
+                };
+              });
+              
+              if (quizData.length === 0) {
+                setUploadError('No valid questions found in CSV file.');
+                setIsLoading(false);
+                return;
+              }
+              
+              // Store quiz data for export option
+              setQuizData(quizData);
+              setIsLoading(false);
+              
+            } catch (err) {
+              setUploadError('Error processing CSV data: ' + err.message);
+              setIsLoading(false);
+            }
+          },
+          error: (error) => {
+            setUploadError('Could not parse CSV file: ' + error.message);
+            setIsLoading(false);
+          }
+        });
       } catch (err) {
-        setUploadError('Could not parse JSON file. Please check your file format.');
+        setUploadError('Could not read CSV file. Please check your file format.');
         setIsLoading(false);
       }
     };
@@ -95,6 +174,15 @@ export default function UploadPage() {
         animation: 'float 20s ease-in-out infinite',
         pointerEvents: 'none',
       }}></div>
+
+      {/* Video Recorder */}
+      {showVideoRecorder && quizData && (
+        <VideoRecorder 
+          onRecordingComplete={(blob) => {
+            console.log('Recording completed:', blob);
+          }}
+        />
+      )}
 
       {/* Main content card */}
       <div style={{
@@ -173,7 +261,7 @@ export default function UploadPage() {
         >
           <input
             type="file"
-            accept="application/json"
+            accept=".csv,text/csv"
             ref={fileInputRef}
             onChange={handleFileChange}
             style={{ display: 'none' }}
@@ -196,7 +284,7 @@ export default function UploadPage() {
             marginBottom: '8px',
             transition: 'color 0.3s ease',
           }}>
-            {isDragOver ? 'Drop your JSON file here' : 'Drag & drop your JSON file'}
+            {isDragOver ? 'Drop your CSV file here' : 'Drag & drop your CSV file'}
           </div>
           
           <div style={{
@@ -256,60 +344,157 @@ export default function UploadPage() {
         )}
 
         {/* Simulate button */}
-        <button
-          onClick={handleSimulate}
-          disabled={isLoading}
-          style={{
-            fontSize: '18px',
-            fontWeight: '700',
-            padding: '16px 0',
-            width: '100%',
-            borderRadius: '12px',
-            background: isLoading 
-              ? 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)'
-              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: '#fff',
-            border: 'none',
-            boxShadow: isLoading 
-              ? 'none'
-              : '0 8px 24px rgba(102, 126, 234, 0.3), 0 4px 12px rgba(118, 75, 162, 0.2)',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            letterSpacing: '0.5px',
-            transition: 'all 0.3s ease',
-            transform: isLoading ? 'scale(0.98)' : 'scale(1)',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onMouseEnter={(e) => {
-            if (!isLoading) {
-              e.target.style.transform = 'scale(1.02)';
-              e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.4), 0 6px 16px rgba(118, 75, 162, 0.3)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isLoading) {
-              e.target.style.transform = 'scale(1)';
-              e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.3), 0 4px 12px rgba(118, 75, 162, 0.2)';
-            }
-          }}
-        >
-          {isLoading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-              <div style={{
-                width: '20px',
-                height: '20px',
-                border: '3px solid rgba(255, 255, 255, 0.3)',
-                borderTop: '3px solid white',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-              }}></div>
-              Processing...
+        {!quizData && (
+          <button
+            onClick={handleSimulate}
+            disabled={isLoading}
+            style={{
+              fontSize: '18px',
+              fontWeight: '700',
+              padding: '16px 0',
+              width: '100%',
+              borderRadius: '12px',
+              background: isLoading 
+                ? 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)'
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: '#fff',
+              border: 'none',
+              boxShadow: isLoading 
+                ? 'none'
+                : '0 8px 24px rgba(102, 126, 234, 0.3), 0 4px 12px rgba(118, 75, 162, 0.2)',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              letterSpacing: '0.5px',
+              transition: 'all 0.3s ease',
+              transform: isLoading ? 'scale(0.98)' : 'scale(1)',
+              position: 'relative',
+              overflow: 'hidden',
+              marginBottom: '15px'
+            }}
+            onMouseEnter={(e) => {
+              if (!isLoading) {
+                e.target.style.transform = 'scale(1.02)';
+                e.target.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.4), 0 6px 16px rgba(118, 75, 162, 0.3)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isLoading) {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.3), 0 4px 12px rgba(118, 75, 162, 0.2)';
+              }
+            }}
+          >
+            {isLoading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '3px solid rgba(255, 255, 255, 0.3)',
+                  borderTop: '3px solid white',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                }}></div>
+                Processing...
+              </div>
+            ) : (
+              '� Process CSV File'
+            )}
+          </button>
+        )}
+
+        {/* Quiz ready section */}
+        {quizData && (
+          <div style={{ width: '100%', marginBottom: '15px' }}>
+            <div style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%)',
+              border: '1px solid #bbf7d0',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              animation: 'fadeIn 0.5s ease-out',
+            }}>
+              <div style={{ fontSize: '20px' }}>🎯</div>
+              <div>
+                <div style={{ fontSize: '14px', color: '#059669', fontWeight: '600' }}>
+                  Quiz Ready!
+                </div>
+                <div style={{ fontSize: '16px', color: '#065f46', fontWeight: '500' }}>
+                  {quizData.length} questions loaded
+                </div>
+              </div>
             </div>
-          ) : (
-            '🚀 Start Quiz'
-          )}
-        </button>
+
+            <button
+              onClick={() => navigate('/quiz', { state: { quizData } })}
+              style={{
+                fontSize: '18px',
+                fontWeight: '700',
+                padding: '16px 0',
+                width: '100%',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                color: '#fff',
+                border: 'none',
+                boxShadow: '0 8px 24px rgba(5, 150, 105, 0.3), 0 4px 12px rgba(4, 120, 87, 0.2)',
+                cursor: 'pointer',
+                letterSpacing: '0.5px',
+                transition: 'all 0.3s ease',
+                marginBottom: '12px'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.02)';
+                e.target.style.boxShadow = '0 12px 32px rgba(5, 150, 105, 0.4), 0 6px 16px rgba(4, 120, 87, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+                e.target.style.boxShadow = '0 8px 24px rgba(5, 150, 105, 0.3), 0 4px 12px rgba(4, 120, 87, 0.2)';
+              }}
+            >
+              🚀 Start Quiz
+            </button>
+          </div>
+        )}
+
+        {/* Video Recording Toggle - Only show when quiz data is ready */}
+        {quizData && (
+          <div style={{ marginBottom: '15px' }}>
+            <button
+              onClick={() => setShowVideoRecorder(!showVideoRecorder)}
+              style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                padding: '12px 0',
+                width: '100%',
+                borderRadius: '8px',
+                background: showVideoRecorder 
+                  ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                  : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                color: '#fff',
+                border: 'none',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+                cursor: 'pointer',
+                letterSpacing: '0.3px',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              {showVideoRecorder ? '🛑 Hide Manual Recorder' : '🎥 Show Manual Recorder (Optional)'}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Video Export Section */}
+      {quizData && (
+        <VideoExporter 
+          quizData={quizData}
+          onComplete={(blob) => {
+            console.log('Video export completed:', blob);
+          }}
+        />
+      )}
 
       {/* Footer info */}
       <div style={{
@@ -326,22 +511,10 @@ export default function UploadPage() {
         animation: 'fadeIn 1s ease-out 0.5s both',
       }}>
         <div style={{ marginBottom: '8px', fontWeight: '600' }}>
-          📋 Accepted format: <strong>JSON</strong>
+          📋 Accepted format: <strong>CSV</strong>
         </div>
         <div>
-          Need help? <a 
-            href="https://jsonlint.com/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            style={{ 
-              color: '#fbbf24', 
-              textDecoration: 'none',
-              fontWeight: '600',
-              borderBottom: '1px solid rgba(251, 191, 36, 0.5)',
-            }}
-          >
-            Validate your JSON
-          </a>
+          Required columns: question_text, option_1, option_2, option_3, option_4, correct_answer, explanation
         </div>
       </div>
 
