@@ -1,552 +1,1148 @@
-/* ================================ RESPONSIVE QUIZ LAYOUT ================================ */
-html, body {
-	margin: 0;
-	padding: 0;
-	width: 100vw;
-	min-height: 100vh;
-	background: #fff;
-	font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-	overflow-x: hidden;
-	color: #222;
-	font-size: 16px;
-}
-
-.ppt-bg {
-	width: 100vw;
-	height: 100vh;
-	background: #fff;
-	display: flex;
-	flex-direction: column;
-	justify-content: stretch;
-	align-items: stretch;
-	position: relative;
-	overflow: hidden;
-}
-.ppt-main-row {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
-  width: 100%;
-  height: calc(100vh - 50px);
-  max-width: none;
+/* Premium AWS Quiz Template - Industry Standard Design */
+* {
   margin: 0;
-  padding: 15px 30px;
-  box-sizing: border-box;
-  gap: 0;
-}
-
-.ppt-col-left {
-  flex: 1;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   padding: 0;
-  padding-right: 180px; /* Reserve space for QR code */
+  box-sizing: border-box;
 }
 
-.ppt-col-right {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 160px;
-  z-index: 10;
-  pointer-events: none; /* Prevent interference with main content */
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #2d3748 100%);
+  color: #ffffff;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-.ppt-timer-bar-outer {
-	width: 100%;
-	height: 8px;
-	background: #e5e7eb;
-	border-radius: 6px;
-	margin-bottom: 25px;
-	box-shadow: 0 1px 4px 0 #e5e7eb;
-}
-
-.ppt-timer-bar-inner {
-	height: 100%;
-	border-radius: 10px;
-	transition: width 0.1s linear, background 0.3s;
-}
-
-.ppt-question {
-  font-size: clamp(1rem, 2.2vw, 1.5rem);
-  font-weight: 600;
-  color: #181818;
-  line-height: 1.4;
-  margin: 0 0 25px 0;
-  text-align: left;
-  width: 100%;
-  max-width: calc(100% - 180px); /* Prevent overlap with QR area */
-  word-wrap: break-word;
-}
-
-.ppt-options {
-	margin-bottom: 0;
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 12px;
-	width: 100%;
-	max-width: calc(100% - 20px); /* Small buffer from QR area */
-}
-
-.ppt-option {
-	display: flex;
-	align-items: center;
-	font-size: clamp(0.8rem, 1.6vw, 1rem);
-	margin-bottom: 0;
-	padding: 12px 16px;
-	border-radius: 8px;
-	background: #f7f8fa;
-	color: #181818;
-	min-height: 45px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-	font-weight: 500;
-	letter-spacing: 0.01em;
-	border: 2px solid transparent;
-	position: relative;
-	text-align: left;
-	transition: all 0.3s ease;
-	cursor: pointer;
-}
-
-.ppt-option.correct {
-	background: #e8f5e8;
-	color: #1a7f37;
-	font-weight: 700;
-	border: 2px solid #1a7f37;
-	box-shadow: 0 4px 16px rgba(26, 127, 55, 0.2);
-}
-
-.ppt-option.correct::before {
-	content: '\2714';
-	color: #1a7f37;
-	font-size: 1.3em;
-	margin-right: 0.7em;
-	font-weight: bold;
-}
-
-.ppt-explanation-box {
-	background: #fdf8ee;
-	border-radius: 8px;
-	padding: 15px 20px;
-	color: #222;
-	font-size: clamp(0.8rem, 1.5vw, 1rem);
-	margin: 30px 0 0 0;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-	border-left: 4px solid #f7c873;
-	width: 100%;
-	box-sizing: border-box;
-	position: absolute;
-	bottom: 80px;
-	left: 20px;
-	right: 20px;
-	z-index: 20;
-}
-
-/* Explanation Screen Styles */
-.ppt-explanation-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
+/* Main Quiz Container - Strict 100vh No Scroll */
+.quiz-container {
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: slideIn 0.5s ease-out;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-.ppt-explanation-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 40px 50px;
-  max-width: 800px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  text-align: center;
-}
-
-.ppt-explanation-header {
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-}
-
-.ppt-explanation-text-container {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 25px 30px;
-  margin: 20px 0;
-  border-left: 5px solid #10b981;
-  min-height: 100px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.ppt-explanation-typing {
-  font-size: clamp(1rem, 2vw, 1.3rem);
-  line-height: 1.6;
-  color: #374151;
-  text-align: left;
-  font-weight: 500;
-}
-
-.ppt-typing-cursor {
-  display: inline-block;
-  width: 2px;
-  height: 1.2em;
-  background: #10b981;
-  margin-left: 2px;
-  animation: blink 1s infinite;
-}
-
-.ppt-explanation-footer {
-  margin-top: 30px;
-  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-  color: #64748b;
-  font-weight: 500;
-}
-
-.ppt-explanation-progress {
-  margin-top: 15px;
-  font-size: clamp(0.8rem, 1.3vw, 1rem);
-  color: #9ca3af;
-  font-weight: 600;
-  text-align: center;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-.ppt-explanation-title {
-	font-weight: 600;
-	color: #b97a1a;
-	margin-bottom: 8px;
-	font-size: 1em;
-}
-
-.ppt-explanation-text {
-	color: #222;
-	font-size: 0.95em;
-	margin-top: 5px;
-	line-height: 1.5;
-}
-
-.ppt-qr-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-}
-.ppt-upload-row {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 0 0 16px;
-  background: #fff;
-  z-index: 10;
-}
-
-.ppt-footer {
-  position: fixed;
+.quiz-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Premium Header - Compact for YouTube */
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aws-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+}
+
+.brand-text {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(45deg, #38bdf8, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.difficulty-indicator .difficulty-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.difficulty-badge.compact {
+  background: linear-gradient(45deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.difficulty-badge.dense {
+  background: linear-gradient(45deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.difficulty-badge:not(.compact):not(.dense) {
+  background: linear-gradient(45deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.progress-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.question-counter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.question-counter .current {
+  color: #38bdf8;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.question-counter .separator {
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 4px;
+}
+
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-track {
+  width: 200px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.progress-percentage {
+  font-size: 14px;
+  font-weight: 600;
+  color: #38bdf8;
+  min-width: 40px;
+}
+
+/* Timer Section - Recording Optimized */
+.timer-section {
+  display: flex;
+  align-items: center;
+  min-width: 100px;
+  justify-content: flex-end;
+}
+
+.timer-display {
+  position: relative;
+}
+
+.timer-circle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.timer-svg {
   width: 100%;
-  background: #111;
-  color: #fff;
-  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 2;
+}
+
+.timer-progress {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.1s linear;
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.5));
+}
+
+.timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.phase-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.phase-icon {
+  font-size: 20px;
+}
+
+.phase-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Main Content Area - Exact Fit 100vh */
+.quiz-main {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  padding: 16px 20px;
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  height: calc(100vh - 90px);
+}
+
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Question Section - Fixed Size for Screen Fit */
+.question-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  flex-shrink: 0;
+  height: 180px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.question-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, transparent 100%);
+  border-radius: 24px;
+  pointer-events: none;
+}
+
+/* Question Header - Compact */
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.question-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.question-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag.aws {
+  background: linear-gradient(45deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.tag.category {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Question Text - Fit to Fixed Height */
+.question-text {
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
-  text-align: center;
-  letter-spacing: 0.02em;
-  padding: 8px 0;
-  margin: 0;
-  box-sizing: border-box;
-  border-top: 2px solid #222;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
-  z-index: 9999;
-  height: 50px;
+  color: #ffffff;
+  position: relative;
+  z-index: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  flex: 1;
 }
 
-
-.ppt-qr-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 6px;
-  margin-top: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: #fff;
-  border: 2px solid #222;
-}
-
-.ppt-qr-label {
-  font-size: 0.7rem;
-  color: #222;
-  text-align: center;
-  font-weight: 600;
-  background: transparent;
-  border-radius: 4px;
-  padding: 4px 6px;
-  margin-bottom: 3px;
+/* Dynamic Question Sizing - Screen Fit */
+.compact-question .question-text {
+  font-size: 20px;
   line-height: 1.2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
-/* Progress Counter Styles */
-.ppt-progress-counter {
-  margin-top: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  padding: 10px 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.dense-question .question-text {
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+}
+
+/* Options Section - Fixed Height Distribution */
+.options-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+  justify-content: space-between;
+}
+
+.option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-height: 50px;
+  max-height: 80px;
+}
+
+/* Remove shimmer effect for recording */
+.option-card::before {
+  display: none;
+}
+
+.option-card:hover::before {
+  display: none;
+}
+
+.option-card.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.option-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.option-card.correct {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.2);
+}
+
+.option-card.animate-correct {
+  animation: correctAnswer 0.8s ease;
+}
+
+@keyframes correctAnswer {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.option-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 50px;
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.correct-icon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  background: #22c55e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-8px); }
+  60% { transform: translateY(-4px); }
+}
+
+.option-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #ffffff;
+  flex: 1;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Dynamic Option Sizing - Fixed Heights */
+.compact-options .option-text {
+  font-size: 16px;
+  line-height: 1.3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.compact-options .option-card {
+  padding: 16px 18px;
+  gap: 14px;
+  max-height: 70px;
+}
+
+.dense-options .option-text {
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+.dense-options .option-card {
+  padding: 12px 14px;
+  gap: 10px;
+  max-height: 90px;
+}
+
+/* Sidebar - Compact for 100vh Fit */
+.sidebar {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 5;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sidebar-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  width: 100%;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
 }
 
-.ppt-progress-text {
-  font-size: 0.7rem;
-  color: #374151;
+.sidebar-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-icon {
+  font-size: 24px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.whatsapp-card .card-icon {
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.5));
+}
+
+.program-card .card-icon {
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+}
+
+.qr-container {
   text-align: center;
-  font-weight: 600;
-  margin-bottom: 6px;
-  line-height: 1.2;
+  position: relative;
+  z-index: 1;
 }
 
-.ppt-progress-bar {
-  width: 100%;
+.qr-code {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.qr-description {
+  margin-top: 12px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+.program-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+.program-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  font-size: 12px;
+}
+
+.program-feature:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.feature-icon {
+  font-size: 14px;
+}
+
+.program-feature span:last-child {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Premium Footer - Compact for Recording */
+.quiz-footer {
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 24px;
+  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.subscribe-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.1));
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.cta-icon {
+  font-size: 20px;
+  /* Removed pulse animation for recording */
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.cta-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.social-proof {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.proof-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.proof-indicators {
+  display: flex;
+  gap: 4px;
+}
+
+.indicator {
+  font-size: 16px;
+  /* Removed twinkle animation for recording */
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.indicator:nth-child(2) { animation-delay: 0.2s; }
+.indicator:nth-child(3) { animation-delay: 0.4s; }
+.indicator:nth-child(4) { animation-delay: 0.6s; }
+.indicator:nth-child(5) { animation-delay: 0.8s; }
+
+
+/* Responsive Design - YouTube Recording Optimized */
+@media (max-width: 1200px) {
+  .quiz-main {
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100vh - 100px);
+  }
+  
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    gap: 16px;
+    max-height: 200px;
+  }
+  
+  .sidebar-card {
+    flex: 1;
+  }
+  
+  .qr-code {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .quiz-header {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  .brand-section {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .progress-section {
+    width: 100%;
+  }
+  
+  .progress-track {
+    width: 200px;
+  }
+  
+  .quiz-main {
+    padding: 16px;
+    height: calc(100vh - 80px);
+  }
+  
+  .question-text {
+    font-size: 20px;
+  }
+  
+  .compact-question .question-text {
+    font-size: 24px;
+  }
+  
+  .dense-question .question-text {
+    font-size: 18px;
+  }
+  
+  .option-text {
+    font-size: 14px;
+  }
+  
+  .sidebar {
+    flex-direction: column;
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-header {
+    padding: 16px;
+  }
+  
+  .brand-text {
+    font-size: 20px;
+  }
+  
+  .question-section,
+  .sidebar-card {
+    padding: 20px;
+  }
+  
+  .option-card {
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .qr-code {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Explanation Screen - YouTube Recording Optimized */
+.explanation-screen {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.explanation-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.explanation-container {
+  max-width: 900px;
+  width: 90%;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 24px;
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.explanation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.explanation-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-bulb {
+  font-size: 28px;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6));
+}
+
+.explanation-label {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(45deg, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.explanation-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.question-progress {
+  font-size: 16px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.progress-indicator {
+  width: 120px;
   height: 4px;
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   overflow: hidden;
 }
 
-.ppt-progress-fill {
+.progress-bar-mini {
   height: 100%;
-  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
   border-radius: 2px;
   transition: width 0.5s ease;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
 }
 
-
-
-/* ================================ RESPONSIVE MEDIA QUERIES ================================ */
-
-@media (max-width: 1200px) {
-	.ppt-main-row {
-		padding: 12px 25px;
-	}
-	
-	.ppt-col-left {
-		padding-right: 160px; /* Adjust for smaller QR */
-	}
-	
-	.ppt-col-right {
-		width: 140px;
-	}
-	
-	.ppt-question {
-		max-width: calc(100% - 160px);
-	}
-	
-	.ppt-options {
-		gap: 12px;
-	}
-	
-	.ppt-option {
-		min-height: 45px;
-		padding: 12px 18px;
-	}
+.explanation-content {
+  margin: 30px 0;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@media (max-width: 900px) {
-	.ppt-main-row {
-		padding: 10px 20px;
-		height: calc(100vh - 50px);
-	}
-	
-	.ppt-col-left {
-		padding-right: 140px; /* Space for mobile QR */
-	}
-	
-	.ppt-question {
-		font-size: clamp(1.1rem, 2.8vw, 1.5rem);
-		margin-bottom: 20px;
-		max-width: calc(100% - 140px);
-	}
-	
-	.ppt-options {
-		grid-template-columns: 1fr;
-		gap: 10px;
-		max-width: calc(100% - 20px);
-	}
-	
-	.ppt-option {
-		font-size: clamp(0.85rem, 2vw, 1.05rem);
-		padding: 12px 16px;
-		min-height: 40px;
-	}
-	
-	.ppt-col-right {
-		top: 12px;
-		right: 12px;
-		width: 120px;
-	}
-	
-	.ppt-qr-img {
-		width: 60px;
-		height: 60px;
-	}
-	
-	.ppt-qr-label {
-		font-size: 0.6rem;
-		padding: 3px 5px;
-	}
-	
-	.ppt-progress-counter {
-		margin-top: 10px;
-		padding: 8px 6px;
-	}
-	
-	.ppt-progress-text {
-		font-size: 0.6rem;
-		margin-bottom: 5px;
-	}
-	
-	.ppt-progress-bar {
-		height: 3px;
-	}
-	
-	.ppt-explanation-box {
-		bottom: 70px;
-		left: 12px;
-		right: 12px;
-		padding: 12px 16px;
-		font-size: clamp(0.75rem, 1.8vw, 0.9rem);
-	}
+.explanation-text {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #ffffff;
+  text-align: justify;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
 }
 
-@media (max-width: 600px) {
-	.ppt-main-row {
-		padding: 8px 15px;
-	}
-	
-	.ppt-col-left {
-		padding-right: 100px; /* Space for small QR */
-	}
-	
-	.ppt-timer-bar-outer {
-		height: 6px;
-		margin-bottom: 20px;
-	}
-	
-	.ppt-question {
-		font-size: clamp(1rem, 3.2vw, 1.3rem);
-		margin-bottom: 18px;
-		max-width: calc(100% - 100px);
-	}
-	
-	.ppt-options {
-		gap: 8px;
-	}
-	
-	.ppt-option {
-		font-size: clamp(0.8rem, 2.2vw, 0.95rem);
-		padding: 10px 14px;
-		min-height: 38px;
-	}
-	
-	.ppt-col-right {
-		top: 8px;
-		right: 8px;
-		width: 90px;
-	}
-	
-	.ppt-qr-img {
-		width: 50px;
-		height: 50px;
-	}
-	
-	.ppt-qr-label {
-		font-size: 0.55rem;
-		padding: 2px 4px;
-	}
-	
-	.ppt-progress-counter {
-		margin-top: 8px;
-		padding: 6px 5px;
-	}
-	
-	.ppt-progress-text {
-		font-size: 0.55rem;
-		margin-bottom: 4px;
-	}
-	
-	.ppt-progress-bar {
-		height: 3px;
-	}
-	
-	.ppt-explanation-box {
-		bottom: 60px;
-		left: 8px;
-		right: 8px;
-		padding: 10px 12px;
-		font-size: clamp(0.7rem, 2vw, 0.85rem);
-	}
+.compact-text {
+  font-size: 24px;
+  line-height: 1.5;
+  text-align: center;
 }
 
-@media (max-width: 400px) {
-	.ppt-main-row {
-		padding: 6px 10px;
-	}
-	
-	.ppt-col-left {
-		padding-right: 0; /* Remove QR space on very small screens */
-	}
-	
-	.ppt-question {
-		font-size: clamp(0.95rem, 3.5vw, 1.2rem);
-		margin-bottom: 15px;
-		max-width: 100%; /* Full width since QR is hidden */
-	}
-	
-	.ppt-option {
-		font-size: clamp(0.75rem, 2.5vw, 0.9rem);
-		padding: 8px 12px;
-		min-height: 35px;
-	}
-	
-	.ppt-col-right {
-		display: none; /* Hide QR code on very small screens */
-	}
+.dense-text {
+  font-size: 18px;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.explanation-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.1));
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.cta-icon {
+  font-size: 20px;
+}
+
+.footer-cta span:last-child {
+  font-size: 16px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.footer-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.progress-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.next-indicator {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Content Density Modes - Fixed empty rules */
+.compact-mode .question-section {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.compact-mode .option-card:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.dense-mode .question-section {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.dense-mode .option-card:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Medium mode (default) uses the base blue theme */
+
+/* Upload Page Styles */
+.upload-container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.upload-header {
+  margin-bottom: 30px;
+}
+
+.upload-title {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.upload-subtitle {
+  color: #666;
+  font-size: 16px;
+}
+
+.upload-area {
+  border: 3px dashed #ddd;
+  border-radius: 15px;
+  padding: 40px 20px;
+  margin: 20px 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.upload-area.dragover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  font-size: 48px;
+  color: #667eea;
+  margin-bottom: 15px;
+}
+
+.upload-text {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.upload-hint {
+  font-size: 14px;
+  color: #999;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.file-info {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.file-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.file-size {
+  font-size: 14px;
+  color: #666;
+}
+
+.start-quiz-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.start-quiz-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+}
+
+.error-message {
+  background: rgba(244, 67, 54, 0.1);
+  color: #d32f2f;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  font-weight: 500;
+}
+
+/* App component styles */
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
