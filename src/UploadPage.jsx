@@ -6,6 +6,7 @@ export default function UploadPage() {
   const [promotionLink, setPromotionLink] = useState('');
   const [quizTitle, setQuizTitle] = useState('AWS Mastery Quiz');
   const [footerText, setFooterText] = useState('Powered by AWS Learning Hub');
+  const [socialProofText, setSocialProofText] = useState('Join 50,000+ AWS professionals');
   const [uploadError, setUploadError] = useState('');
   const [fileName, setFileName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -187,7 +188,8 @@ export default function UploadPage() {
     localStorage.setItem('quizCustomization', JSON.stringify({
       promotionLink,
       quizTitle,
-      footerText
+      footerText,
+      socialProofText
     }));
     
     // Navigate to quiz with customization and quiz data (if any)
@@ -197,7 +199,8 @@ export default function UploadPage() {
         customization: {
           promotionLink,
           quizTitle,
-          footerText
+          footerText,
+          socialProofText
         }
       } 
     });
@@ -673,6 +676,52 @@ export default function UploadPage() {
                   }}
                 />
               </div>
+
+              {/* Social Proof Text */}
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  marginBottom: '8px',
+                }}>
+                  🌟 Social Proof Message
+                </label>
+                <input
+                  type="text"
+                  value={socialProofText}
+                  onChange={(e) => setSocialProofText(e.target.value)}
+                  placeholder="Join 50,000+ AWS professionals"
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    fontSize: '14px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    outline: 'none',
+                    transition: 'all 0.3s ease',
+                    fontFamily: 'inherit',
+                    backgroundColor: '#ffffff',
+                    boxSizing: 'border-box',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#667eea';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <p style={{
+                  fontSize: '12px',
+                  color: '#64748b',
+                  margin: '4px 0 0 0',
+                }}>
+                  Text that appears with the star rating (e.g., "Join 50,000+ AWS professionals")
+                </p>
+              </div>
             </div>
           </div>
 
@@ -744,6 +793,9 @@ export default function UploadPage() {
               </div>
               <div style={{ marginBottom: '8px' }}>
                 <strong style={{ color: '#374151' }}>Footer:</strong> {footerText}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong style={{ color: '#374151' }}>Social Proof:</strong> {socialProofText}
               </div>
               {promotionLink && (
                 <div style={{ marginBottom: '8px' }}>

@@ -91,7 +91,8 @@ export default function QuizPage() {
   const {
     promotionLink = '',
     quizTitle = 'AWS Mastery Quiz',
-    footerText = 'Powered by AWS Learning Hub'
+    footerText = 'Powered by AWS Learning Hub',
+    socialProofText = 'Join 50,000+ AWS professionals'
   } = customization;
 
   // Generate QR URL based on promotion link
@@ -532,6 +533,19 @@ export default function QuizPage() {
         </div>
       </div>
 
+      {/* Timer Progress Bar */}
+      {phase === 'timer' && (
+        <div className="timer-progress-container">
+          <div 
+            className="timer-progress-bar" 
+            style={{ 
+              width: `${progress}%`,
+              backgroundColor: progress > 60 ? '#22c55e' : progress > 30 ? '#fbbf24' : '#ef4444'
+            }}
+          ></div>
+        </div>
+      )}
+
       {/* Premium Footer */}
       <div className="quiz-footer">
         <div className="footer-content">
@@ -561,7 +575,7 @@ export default function QuizPage() {
             </div>
           )}
           <div className="social-proof">
-            <span className="proof-text">Join 50,000+ AWS professionals</span>
+            <span className="proof-text">{socialProofText}</span>
             <div className="proof-indicators">
               <span className="indicator">🌟</span>
               <span className="indicator">🌟</span>

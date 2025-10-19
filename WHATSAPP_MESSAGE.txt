@@ -1,0 +1,15 @@
+🎯 **Quiz Builder - Professional Quiz App** 🎯
+
+✨ **Perfect for Content Creators & Educators!**
+
+🚀 **Key Features:**
+• **Quick Start Mode** - Ready AWS questions, launch instantly
+• **Custom CSV Upload** - Add your own questions via drag & drop
+• **Brand Customization** - Your title, footer & promotion links
+• **Auto QR Code Generator** - Creates QR codes for your website
+• **Professional UI** - Perfect for YouTube recordings & presentations
+• **Mobile Responsive** - Works on all devices seamlessly
+• **User Manual Included** - Complete guide with CSV templates
+• **No Technical Skills Required** - Simple drag, drop, and launch!
+
+**Create professional quizzes in seconds!** 🎉
